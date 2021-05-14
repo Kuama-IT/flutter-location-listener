@@ -1,5 +1,5 @@
 import 'package:flutter/services.dart';
-import 'package:flutter_position_tracker/flutter_position_tracker.dart';
+import 'package:flutter_location_listener/flutter_location_listener.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 void main() {
@@ -18,6 +18,6 @@ void main() {
   });
 
   test('getPlatformVersion', () async {
-    expect(FlutterPositionTracker().onPositionChanges, '42');
+    expect(FlutterLocationListener().onPositionChanges, '42');
   });
 }

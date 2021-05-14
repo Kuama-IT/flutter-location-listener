@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_position_tracker/flutter_position_tracker.dart';
+import 'package:flutter_location_listener/flutter_location_listener.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 void main() {
@@ -13,7 +13,7 @@ class MyApp extends StatefulWidget {
 }
 
 class _MyAppState extends State<MyApp> {
-  PermissionStatus _permissionStatus;
+  PermissionStatus? _permissionStatus;
   dynamic _location = 'Unknown';
 
   @override
@@ -32,8 +32,7 @@ class _MyAppState extends State<MyApp> {
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  final permissionStatus =
-                      await Permission.locationAlways.request();
+                  final permissionStatus = await Permission.locationAlways.request();
                   setState(() {
                     _permissionStatus = permissionStatus;
                   });
@@ -43,7 +42,7 @@ class _MyAppState extends State<MyApp> {
               Text('Permission: $_permissionStatus'),
               ElevatedButton(
                 onPressed: () async {
-                  await FlutterPositionTracker().startService();
+                  await FlutterLocationListener().startService();
                   setState(() {
                     _location = 'Online';
                   });
@@ -53,8 +52,7 @@ class _MyAppState extends State<MyApp> {
               ElevatedButton(
                 onPressed: () async {
                   try {
-                    final lastLocation =
-                        await FlutterPositionTracker().currentLocation();
+                    final lastLocation = await FlutterLocationListener().currentLocation;
 
                     print("Last location $lastLocation");
 

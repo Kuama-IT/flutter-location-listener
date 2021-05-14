@@ -2,13 +2,13 @@ import 'dart:async';
 
 import 'package:flutter/services.dart';
 
-class FlutterPositionTracker {
-  static FlutterPositionTracker? instance;
+class FlutterLocationListener {
+  static FlutterLocationListener? _instance;
 
-  FlutterPositionTracker._();
+  FlutterLocationListener._();
 
-  factory FlutterPositionTracker() {
-    return instance ??= FlutterPositionTracker._();
+  factory FlutterLocationListener() {
+    return _instance ??= FlutterLocationListener._();
   }
 
   final _methodChannel = const MethodChannel('flutter_position_tracker');
@@ -17,7 +17,7 @@ class FlutterPositionTracker {
     await _methodChannel.invokeMethod('startService');
   }
 
-  Future<LatLng> currentLocation() async {
+  Future<LatLng> get currentLocation async {
     final map = await _methodChannel.invokeMethod('currentLocation');
     return LatLng.fromMap(map);
   }
