@@ -3,6 +3,10 @@ import 'package:flutter/services.dart';
 import 'package:flutter_location_listener/flutter_location_listener.dart';
 import 'package:permission_handler/permission_handler.dart';
 
+Future<void> _onLocation(Location latLng) async {
+  print('New Location $latLng');
+}
+
 void main() {
   runApp(MyApp());
 }
@@ -42,7 +46,7 @@ class _MyAppState extends State<MyApp> {
               Text('Permission: $_permissionStatus'),
               ElevatedButton(
                 onPressed: () async {
-                  await FlutterLocationListener().startService();
+                  await FlutterLocationListener().startService(_onLocation);
                   setState(() {
                     _location = 'Online';
                   });
