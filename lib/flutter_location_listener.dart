@@ -1,63 +1,75 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+void pluginCallback() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  final methodChannel = MethodChannel('flutter_location_listener#callback');
+
+  methodChannel.setMethodCallHandler((call) async {
+    if (call.method == 'FlutterLocationListener#onLocation') {
+      print("FlutterLocationListener#onLocation");
+
+      final userCallbackId = call.arguments['userCallbackId'] as int;
+      final location = Location.fromMap(call.arguments['location'] as Map<dynamic, dynamic>);
+
+      final userCallbackHandle = CallbackHandle.fromRawHandle(userCallbackId);
+
+      final userCallback =
+          PluginUtilities.getCallbackFromHandle(userCallbackHandle) as void Function(Location);
+
+      userCallback(location);
+    } else {
+      throw UnimplementedError('${call.method} has not been implemented');
+    }
+  });
+}
 
 class FlutterLocationListener {
   static FlutterLocationListener? _instance;
-
-  FlutterLocationListener._();
 
   factory FlutterLocationListener() {
     return _instance ??= FlutterLocationListener._();
   }
 
-  final _methodChannel = const MethodChannel('flutter_position_tracker');
+  FlutterLocationListener._();
 
-  Future<void> startService() async {
-    await _methodChannel.invokeMethod('startService');
+  final _methodChannel = const MethodChannel('flutter_location_listener');
+
+  Future<void> startService(Future<void> Function(Location location) userCallback) async {
+    final pluginCallbackId = PluginUtilities.getCallbackHandle(pluginCallback)!.toRawHandle();
+    final userCallbackId = PluginUtilities.getCallbackHandle(userCallback)!.toRawHandle();
+
+    await _methodChannel.invokeMapMethod('startService', {
+      'pluginCallbackId': pluginCallbackId.toUnsigned(64),
+      'userCallbackId': userCallbackId,
+    });
   }
 
-  Future<LatLng> get currentLocation async {
+  Future<Location> get currentLocation async {
     final map = await _methodChannel.invokeMethod('currentLocation');
-    return LatLng.fromMap(map);
+    if (map == null) {
+      throw 'Please start a service';
+    }
+    return Location.fromMap(map);
   }
 
   Future<void> stopService() async {
     await _methodChannel.invokeMethod('stopService');
   }
-/*
-
-  Stream<LatLng> get onPositionChanges {
-    if (_positionSubject == null) {
-      _positionSubject = StreamController.broadcast(
-        onListen: () {
-          _methodChannel.invokeMethod('startService').asStream().map((event) {
-            return LatLng.fromMap(event);
-          }).listen(
-            _positionSubject!.add,
-            onError: _positionSubject!.addError,
-          );
-        },
-        onCancel: () {
-          _positionSubject!.close();
-          _positionSubject = null;
-        },
-      );
-    }
-
-
-    return _positionSubject!.stream;
-  }*/
 }
 
-class LatLng {
+class Location {
   final double latitude;
   final double longitude;
 
-  LatLng(this.latitude, this.longitude);
+  Location(this.latitude, this.longitude);
 
-  factory LatLng.fromMap(Map<dynamic, dynamic> map) {
-    return LatLng(map['latitude'] as double, map['longitude'] as double);
+  factory Location.fromMap(Map<dynamic, dynamic> map) {
+    return Location(map['latitude'] as double, map['longitude'] as double);
   }
 
   Map<String, dynamic> toMap() {
@@ -70,7 +82,7 @@ class LatLng {
 
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is LatLng &&
+      other is Location &&
           runtimeType == other.runtimeType &&
           latitude == other.latitude &&
           longitude == other.longitude;
