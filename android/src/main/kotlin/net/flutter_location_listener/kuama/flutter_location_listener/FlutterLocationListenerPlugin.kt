@@ -1,114 +1,68 @@
-package com.example.flutter_position_tracker
+package net.flutter_location_listener.kuama.flutter_location_listener
 
-import android.app.Activity
 import android.content.*
-import android.util.Log
 import androidx.annotation.NonNull
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
+
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.embedding.engine.dart.DartExecutor
 import io.flutter.embedding.engine.loader.FlutterLoader
 import io.flutter.embedding.engine.plugins.FlutterPlugin
-import io.flutter.embedding.engine.plugins.activity.ActivityAware
-import io.flutter.embedding.engine.plugins.activity.ActivityPluginBinding
 import io.flutter.plugin.common.BinaryMessenger
 import io.flutter.plugin.common.MethodCall
 import io.flutter.plugin.common.MethodChannel
 import io.flutter.view.FlutterCallbackInformation
+
 import net.kuama.android.backgroundLocation.service.BackgroundService
 import java.lang.IllegalArgumentException
 
-//import io.flutter.embedding.engine.plugins.lifecycle.FlutterLifecycleAdapter;
+/** FlutterLocationListenerPlugin */
+class FlutterLocationListenerPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
+  private val SHARED_PREFERENCES_KEY = "geofencing_plugin_cache"
+  private val USER_CALLBACK_ID_KEY = "userCallbackId"
+  private val PLUGIN_CALLBACK_ID_KEY = "pluginCallbackId"
 
-
-/** FlutterPositionTrackerPlugin */
-@Suppress("DEPRECATED_IDENTITY_EQUALS")
-class FlutterPositionTrackerPlugin: FlutterPlugin, MethodChannel.MethodCallHandler, ActivityAware, LifecycleEventObserver {
-  val SHARED_PREFERENCES_KEY = "geofencing_plugin_cache"
-  val USER_CALLBACK_ID_KEY = "userCallbackId"
-  val PLUGIN_CALLBACK_ID_KEY = "pluginCallbackId"
-
-  private var binaryMessenger: BinaryMessenger? = null
-  private lateinit var context: Context
-  private lateinit var activity: Activity
-  private var location: Location? = null
-
-  /// The MethodChannel that will the communication between Flutter and native Android
-  ///
-  /// This local reference serves to register the plugin with the Flutter Engine and unregister it
-  /// when the Flutter Engine is detached from the Activity
+  private lateinit var binaryMessenger: BinaryMessenger
+  private lateinit var applicationContext: Context
   private lateinit var methodChannel: MethodChannel
+
+  private var location: Location? = null
 
   override fun onAttachedToEngine(@NonNull flutterPluginBinding: FlutterPlugin.FlutterPluginBinding) {
     binaryMessenger = flutterPluginBinding.binaryMessenger
-    context = flutterPluginBinding.applicationContext
-    Log.e("And","onAttachedToEngine")
-  }
-
-  override fun onAttachedToActivity(binding: ActivityPluginBinding) {
+    applicationContext = flutterPluginBinding.applicationContext
     methodChannel = MethodChannel(binaryMessenger, "flutter_location_listener")
     methodChannel.setMethodCallHandler(this)
-    activity = binding.activity
-
-    Log.e("And","service started")
-  }
-
-  override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-    Log.e("And","onStateChanged $event ${source.lifecycle.currentState}")
-//    if (event == Lifecycle.Event.ON_CREATE) {
-//
-//    }
-  }
-
-  override fun onDetachedFromActivityForConfigChanges() {
-    Log.e("And","onDetachedFromActivityForConfigChanges")
-//    activity.unregisterReceiver(receiver)
-  }
-
-  override fun onReattachedToActivityForConfigChanges(binding: ActivityPluginBinding) {
-    Log.e("And","onReattachedToActivityForConfigChanges")
-//    activity.startService(Intent(activity, BackgroundService::class.java))
   }
 
   override fun onDetachedFromEngine(@NonNull binding: FlutterPlugin.FlutterPluginBinding) {
-    Log.e("And","onDetachedFromEngine")
-//    methodChannel.setMethodCallHandler(null)
+    methodChannel.setMethodCallHandler(null)
   }
 
-  override fun onDetachedFromActivity() {
-    Log.e("And","onDetachedFromActivity")
-//    activity.unregisterReceiver(receiver)
-  }
   private val receiver: MyBroadcastReceiver = MyBroadcastReceiver()
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
-    // listen position and push it
-    Log.e("And","onMethodCall")
     when (call.method) {
       "startService" -> {
-        Log.e("And","startService")
+        val context = applicationContext
         val pluginCallbackId = parseLong(call, PLUGIN_CALLBACK_ID_KEY)
         val userCallbackId = parseLong(call, USER_CALLBACK_ID_KEY)
 
         context
-          .getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)
-          .edit()
-          .putLong(PLUGIN_CALLBACK_ID_KEY, pluginCallbackId)
-          .putLong(USER_CALLBACK_ID_KEY, userCallbackId)
-          .apply()
+                .getSharedPreferences(SHARED_PREFERENCES_KEY, Context.MODE_PRIVATE)
+                .edit()
+                .putLong(PLUGIN_CALLBACK_ID_KEY, pluginCallbackId)
+                .putLong(USER_CALLBACK_ID_KEY, userCallbackId)
+                .apply()
 
-        activity.applicationContext.registerReceiver(receiver, IntentFilter(BackgroundService::class.java.name))
-        activity.applicationContext.startService(Intent(activity.applicationContext, BackgroundService::class.java))
+        context.registerReceiver(receiver, IntentFilter(BackgroundService::class.java.name))
+        context.startService(Intent(context, BackgroundService::class.java))
         result.success(null)
       }
       "currentLocation" -> {
         result.success(location?.toMap())
-        Log.e("And","currentLocation")
       }
       "stopService" -> {
-        Log.e("And","stopService")
+        result.success(null)
       }
     }
   }

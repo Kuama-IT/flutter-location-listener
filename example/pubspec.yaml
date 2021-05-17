@@ -1,5 +1,5 @@
 name: flutter_location_listener_example
-description: Demonstrates how to use the flutter_position_tracker plugin.
+description: Demonstrates how to use the flutter_location_listener plugin.
 
 # The following line prevents the package from being accidentally published to
 # pub.dev using `pub publish`. This is preferred for private packages.
@@ -14,7 +14,7 @@ dependencies:
 
   flutter_location_listener:
     # When depending on this package from a real application you should use:
-    #   flutter_position_tracker: ^x.y.z
+    #   flutter_location_listener: ^x.y.z
     # See https://dart.dev/tools/pub/dependencies#version-constraints
     # The example app is bundled with the plugin so we use a path dependency on
     # the parent directory to use the current plugin's version.

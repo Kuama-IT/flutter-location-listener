@@ -1,6 +1,7 @@
 name: flutter_location_listener
 description: A new Flutter project.
 version: 0.0.1
+author:
 homepage:
 
 environment:
@@ -27,10 +28,10 @@ flutter:
   plugin:
     platforms:
       android:
-        package: com.example.flutter_position_tracker
-        pluginClass: FlutterPositionTrackerPlugin
+        package: net.flutter_location_listener.kuama.flutter_location_listener
+        pluginClass: FlutterLocationListenerPlugin
       ios:
-        pluginClass: FlutterPositionTrackerPlugin
+        pluginClass: FlutterLocationListenerPlugin
 
   # To add assets to your plugin package, add an assets section, like this:
   # assets:

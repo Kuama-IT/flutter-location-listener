@@ -1,6 +1,6 @@
-# flutter_position_tracker_example
+# flutter_location_listener_example
 
-Demonstrates how to use the flutter_position_tracker plugin.
+Demonstrates how to use the flutter_location_listener plugin.
 
 ## Getting Started
 

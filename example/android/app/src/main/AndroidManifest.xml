@@ -1,17 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.flutter_position_tracker_example">
+    package="net.flutter_location_listener.kuama.flutter_location_listener_example">
 
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.INTERNET" />
 
    <application
-        android:label="flutter_position_tracker_example"
+        android:label="flutter_location_listener_example"
         android:icon="@mipmap/ic_launcher"
         android:enabled="true">
-       <activity
+        <activity
             android:name=".MainActivity"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"
@@ -58,5 +56,5 @@
        <service
                android:name="net.kuama.android.backgroundLocation.service.BackgroundService"
                android:foregroundServiceType="location" />
-   </application>
+    </application>
 </manifest>
