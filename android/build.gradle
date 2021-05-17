@@ -1,4 +1,4 @@
-group 'com.example.flutter_position_tracker'
+group 'net.flutter_location_listener.kuama.flutter_location_listener'
 version '1.0-SNAPSHOT'
 
 buildscript {
