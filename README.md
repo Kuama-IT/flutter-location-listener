@@ -5,8 +5,8 @@ A new Flutter project.
 ## Getting Started
 
 
-1. Update Manifest
-
+1. 
+ - Android: Update Manifest
 ```xml
 <manifest>
 
@@ -32,6 +32,7 @@ A new Flutter project.
     
 </manifest>
 ```
+  - Ios: Select your project, select the "Signing & Capabilities" tab, click on the "+" button and add "Background Modes". Check and activate "Location updates", "Backgroud Fetch" and "Background Processing".
 
 2. Require permission
 
