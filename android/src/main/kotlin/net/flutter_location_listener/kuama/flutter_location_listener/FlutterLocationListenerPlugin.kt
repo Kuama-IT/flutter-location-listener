@@ -15,12 +15,12 @@ import io.flutter.view.FlutterCallbackInformation
 import net.kuama.android.backgroundLocation.service.BackgroundService
 import java.lang.IllegalArgumentException
 
+private const val SHARED_PREFERENCES_KEY = "geofencing_plugin_cache"
+private const val USER_CALLBACK_ID_KEY = "userCallbackId"
+private const val PLUGIN_CALLBACK_ID_KEY = "pluginCallbackId"
+
 /** FlutterLocationListenerPlugin */
 class FlutterLocationListenerPlugin: FlutterPlugin, MethodChannel.MethodCallHandler {
-  private val SHARED_PREFERENCES_KEY = "geofencing_plugin_cache"
-  private val USER_CALLBACK_ID_KEY = "userCallbackId"
-  private val PLUGIN_CALLBACK_ID_KEY = "pluginCallbackId"
-
   private lateinit var binaryMessenger: BinaryMessenger
   private lateinit var applicationContext: Context
   private lateinit var methodChannel: MethodChannel
@@ -38,7 +38,7 @@ class FlutterLocationListenerPlugin: FlutterPlugin, MethodChannel.MethodCallHand
     methodChannel.setMethodCallHandler(null)
   }
 
-  private val receiver: MyBroadcastReceiver = MyBroadcastReceiver()
+  private val receiver: LocationBroadcastReceiver = LocationBroadcastReceiver()
 
   override fun onMethodCall(call: MethodCall, result: MethodChannel.Result) {
     when (call.method) {
@@ -62,6 +62,8 @@ class FlutterLocationListenerPlugin: FlutterPlugin, MethodChannel.MethodCallHand
         result.success(location?.toMap())
       }
       "stopService" -> {
+        val context = applicationContext
+        context.stopService(Intent(context, BackgroundService::class.java))
         result.success(null)
       }
     }
@@ -69,7 +71,7 @@ class FlutterLocationListenerPlugin: FlutterPlugin, MethodChannel.MethodCallHand
 
   private var backgroundMethodChannel: MethodChannel? = null
 
-  private inner class MyBroadcastReceiver: BroadcastReceiver() {
+  private inner class LocationBroadcastReceiver: BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
 
       val latitude = intent?.extras?.getDouble("latitude")
@@ -97,9 +99,10 @@ class FlutterLocationListenerPlugin: FlutterPlugin, MethodChannel.MethodCallHand
         backgroundMethodChannel = MethodChannel(engine.dartExecutor, "flutter_location_listener#callback")
       }
 
-      val paramsMap = HashMap<String, Any>()
-      paramsMap["location"] = location!!.toMap()
-      paramsMap[USER_CALLBACK_ID_KEY] = userCallbackId
+      val paramsMap = hashMapOf(
+        "location" to location!!,
+        USER_CALLBACK_ID_KEY to userCallbackId,
+      )
       backgroundMethodChannel!!.invokeMethod("FlutterLocationListener#onLocation", paramsMap)
     }
   }
@@ -121,9 +124,6 @@ class FlutterLocationListenerPlugin: FlutterPlugin, MethodChannel.MethodCallHand
 
 class Location constructor(private val latitude: Double, private val longitude: Double) {
   fun toMap(): HashMap<String, Double> {
-    val hashMap: HashMap<String, Double> = HashMap()
-    hashMap["latitude"] = latitude
-    hashMap["longitude"] = longitude
-    return hashMap
+    return hashMapOf("latitude" to latitude, "longitude" to longitude)
   }
 }
