@@ -100,7 +100,7 @@ class FlutterLocationListenerPlugin: FlutterPlugin, MethodChannel.MethodCallHand
       }
 
       val paramsMap = hashMapOf(
-        "location" to location!!,
+        "location" to location!!.toMap(),
         USER_CALLBACK_ID_KEY to userCallbackId,
       )
       backgroundMethodChannel!!.invokeMethod("FlutterLocationListener#onLocation", paramsMap)
