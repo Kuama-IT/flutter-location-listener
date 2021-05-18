@@ -48,11 +48,22 @@ class _MyAppState extends State<MyApp> {
               ElevatedButton(
                 onPressed: () async {
                   await FlutterLocationListener().startService(onLocation);
+
                   setState(() {
                     _location = 'Online';
                   });
                 },
                 child: Text('Launch Service'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  await FlutterLocationListener().stopService();
+
+                  setState(() {
+                    _location = 'Online';
+                  });
+                },
+                child: Text('Stop Service'),
               ),
               ElevatedButton(
                 onPressed: () async {

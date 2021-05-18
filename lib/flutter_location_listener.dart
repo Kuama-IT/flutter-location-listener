@@ -1,23 +1,23 @@
 import 'dart:async';
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 void pluginCallback() {
-  print("plugin callback running");
   WidgetsFlutterBinding.ensureInitialized();
 
   final methodChannel = MethodChannel('flutter_location_listener#callback');
 
   methodChannel.setMethodCallHandler((call) async {
     if (call.method == 'FlutterLocationListener#onLocation') {
-      print("FlutterLocationListener#onLocation");
-
       final userCallbackId = call.arguments['userCallbackId'] as int;
       final location =
           Location.fromMap(call.arguments['location'] as Map<dynamic, dynamic>);
-
+      final File file = File(
+          '/Users/kuama/Desktop/hybrid/flutter-location-listener/lib/my_file.txt');
+      file.writeAsString('New Location $location');
       final userCallbackHandle = CallbackHandle.fromRawHandle(userCallbackId);
 
       final userCallback =
