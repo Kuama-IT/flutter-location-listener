@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_location_listener/flutter_location_listener.dart';
 import 'package:permission_handler/permission_handler.dart';
 
-Future<void> _onLocation(Location latLng) async {
+Future<void> onLocation(Location latLng) async {
   print('New Location $latLng');
 }
 
@@ -36,7 +36,8 @@ class _MyAppState extends State<MyApp> {
             children: [
               ElevatedButton(
                 onPressed: () async {
-                  final permissionStatus = await Permission.locationAlways.request();
+                  final permissionStatus =
+                      await Permission.locationAlways.request();
                   setState(() {
                     _permissionStatus = permissionStatus;
                   });
@@ -46,7 +47,7 @@ class _MyAppState extends State<MyApp> {
               Text('Permission: $_permissionStatus'),
               ElevatedButton(
                 onPressed: () async {
-                  await FlutterLocationListener().startService(_onLocation);
+                  await FlutterLocationListener().startService(onLocation);
                   setState(() {
                     _location = 'Online';
                   });
@@ -56,7 +57,8 @@ class _MyAppState extends State<MyApp> {
               ElevatedButton(
                 onPressed: () async {
                   try {
-                    final lastLocation = await FlutterLocationListener().currentLocation;
+                    final lastLocation =
+                        await FlutterLocationListener().currentLocation;
 
                     print("Last location $lastLocation");
 

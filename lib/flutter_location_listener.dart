@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 
 void pluginCallback() {
+  print("plugin callback running");
   WidgetsFlutterBinding.ensureInitialized();
 
   final methodChannel = MethodChannel('flutter_location_listener#callback');
@@ -14,12 +15,14 @@ void pluginCallback() {
       print("FlutterLocationListener#onLocation");
 
       final userCallbackId = call.arguments['userCallbackId'] as int;
-      final location = Location.fromMap(call.arguments['location'] as Map<dynamic, dynamic>);
+      final location =
+          Location.fromMap(call.arguments['location'] as Map<dynamic, dynamic>);
 
       final userCallbackHandle = CallbackHandle.fromRawHandle(userCallbackId);
 
       final userCallback =
-          PluginUtilities.getCallbackFromHandle(userCallbackHandle) as void Function(Location);
+          PluginUtilities.getCallbackFromHandle(userCallbackHandle) as void
+              Function(Location);
 
       userCallback(location);
     } else {
@@ -39,10 +42,12 @@ class FlutterLocationListener {
 
   final _methodChannel = const MethodChannel('flutter_location_listener');
 
-  Future<void> startService(Future<void> Function(Location location) userCallback) async {
-    final pluginCallbackId = PluginUtilities.getCallbackHandle(pluginCallback)!.toRawHandle();
-    final userCallbackId = PluginUtilities.getCallbackHandle(userCallback)!.toRawHandle();
-
+  Future<void> startService(
+      Future<void> Function(Location location) userCallback) async {
+    final pluginCallbackId =
+        PluginUtilities.getCallbackHandle(pluginCallback)!.toRawHandle();
+    final userCallbackId =
+        PluginUtilities.getCallbackHandle(userCallback)!.toRawHandle();
     await _methodChannel.invokeMapMethod('startService', {
       'pluginCallbackId': pluginCallbackId.toUnsigned(64),
       'userCallbackId': userCallbackId,
